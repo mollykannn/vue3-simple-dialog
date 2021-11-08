@@ -1,136 +1,93 @@
 <template>
-  <component
-    :is="$modal.context.componentName"
-    name="dialog"
-    height="auto"
-    :classes="['vue-dialog', this.params.class]"
-    :width="width"
-    :shift-y="0.3"
-    :adaptive="true"
-    :focus-trap="true"
-    :clickToClose="clickToClose"
-    :transition="transition"
-    @before-open="beforeOpened"
-    @before-close="beforeClosed"
-    @opened="$emit('opened', $event)"
-    @closed="$emit('closed', $event)"
-  >
-    <div class="vue-dialog-content">
-      <div class="vue-dialog-content-title" v-if="params.title" v-html="params.title || ''" />
-
-      <component v-if="params.component" v-bind="params.props" :is="params.component" />
-      <div v-else v-html="params.text || ''" />
+  <transition name="fade">
+    <div class="v--modal-overlay" v-if="dialogOption.open">
+      <div
+        class="v--modal-background-click"
+        @mousedown.self="closeItem"
+        @touchstart.self="closeItem"
+      >
+        <div class="v--modal">
+          <div class="v--modal-content">
+            <h3 class="title">{{ dialogOption.title }}</h3>
+            <p class="text">{{ dialogOption.text }}</p>
+          </div>
+          <div class="v--modal-button" v-if="dialogOption.buttons">
+            <button
+              v-for="button in dialogOption.buttons"
+              class="button"
+              type="button"
+              :key="button.title"
+              @click.stop="click(button)"
+            >
+              {{ button.title }}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="vue-dialog-buttons" v-if="buttons">
-      <button
-        v-for="(button, index) in buttons"
-        :class="button.class || 'vue-dialog-button'"
-        type="button"
-        tabindex="0"
-        :style="buttonStyle"
-        :key="index"
-        v-html="button.title"
-        @click.stop="click(index, $event)"
-      >{{ button.title }}</button>
-    </div>
-    <div v-else class="vue-dialog-buttons-none" />
-  </component>
+  </transition>
 </template>
-<script>
-export default {
-  name: 'VueJsDialog',
-  props: {
-    width: {
-      type: [Number, String],
-      default: 400
-    },
-    clickToClose: {
-      type: Boolean,
-      default: true
-    },
-    transition: {
-      type: String
-    }
-  },
-  data() {
-    return {
-      params: {}
-    }
-  },
-  computed: {
-    buttons() {
-      return this.params.buttons || []
-    },
-    /**
-     * Returns FLEX style with correct width for arbitrary number of
-     * buttons.
-     */
-    buttonStyle() {
-      return {
-        flex: `1 1 ${100 / this.buttons.length}%`
-      }
-    }
-  },
-  methods: {
-    beforeOpened(event) {
-      // window.addEventListener('keyup', this.onKeyUp)
-
-      this.params = event.params || {}
-      this.$emit('before-opened', event)
-    },
-
-    beforeClosed(event) {
-      // window.removeEventListener('keyup', this.onKeyUp)
-
-      this.params = {}
-      this.$emit('before-closed', event)
-    },
-
-    click(buttonIndex, event, source = 'click') {
-      const button = this.buttons[buttonIndex]
-      const handler = button?.handler
-
-      if (typeof handler === 'function') {
-        handler(buttonIndex, event, { source })
-      }
-    }
-  }
-}
-</script>
 <style>
-.vue-dialog {
-  font-size: 14px;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s;
 }
 
-.vue-dialog div {
+.fade-enter,
+.fade-leave-active {
+  opacity: 0;
+}
+
+.v--modal-overlay {
+  position: fixed;
   box-sizing: border-box;
-}
-
-.vue-dialog-content {
-  flex: 1 0 auto;
+  left: 0;
+  top: 0;
   width: 100%;
-  padding: 14px;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 999;
 }
 
-.vue-dialog-content-title {
-  font-weight: 600;
-  padding-bottom: 14px;
+.v--modal-overlay .v--modal-background-click {
+  width: 100%;
+  min-height: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.vue-dialog-buttons {
+.v--modal-overlay .v--modal {
+  background-color: white;
+  text-align: left;
+  border-radius: 3px;
+  box-shadow: 0 20px 60px -2px rgba(27, 33, 58, 0.4);
+  padding: 0;
+  min-width: 400px;
+  height: auto;
+}
+
+.v--modal-overlay .v--modal .v--modal-content {
+  padding: 1em 1em 0 1em;
+}
+
+.v--modal-overlay .v--modal .v--modal-content .title {
+  margin: 0;
+  padding: 0;
+}
+
+.v--modal-overlay .v--modal .v--modal-content .text {
+  text-align: center;
+}
+
+.v--modal-overlay .v--modal .v--modal-button {
   display: flex;
   flex: 0 1 auto;
-  width: 100%;
   border-top: 1px solid #eee;
 }
 
-.vue-dialog-buttons-none {
-  width: 100%;
-  padding-bottom: 14px;
-}
-
-.vue-dialog-button {
-  font-size: inherit;
+.v--modal-overlay .v--modal .v--modal-button .button {
   background: transparent;
   padding: 0;
   margin: 0;
@@ -139,20 +96,59 @@ export default {
   box-sizing: border-box;
   line-height: 40px;
   height: 40px;
-  color: inherit;
-  font: inherit;
   outline: none;
+  font-size: 0.9em;
+  flex: 1;
+  color: #6e6e6e;
 }
 
-.vue-dialog-button:hover {
-  background: #f9f9f9;
-}
-
-.vue-dialog-button:active {
-  background: #f3f3f3;
-}
-
-.vue-dialog-button:not(:first-of-type) {
+.v--modal-overlay .v--modal .v--modal-button .button:not(:first-of-type) {
   border-left: 1px solid #eee;
 }
 </style>
+<script lang="ts">
+import { defineComponent, reactive, onMounted } from "vue";
+import emitter from "./../mitt";
+
+export default defineComponent({
+  name: 'Component',
+  setup() {
+    onMounted(() => {
+      emitter.on("add", addItem);
+      emitter.on("close", closeItem);
+    });
+
+    const dialogOption = reactive({
+      open: false,
+      title: "",
+      text: "",
+      buttons: [] as any,
+    });
+
+    const addItem = (event: any) => {
+      dialogOption.open = true;
+      dialogOption.title = event.title;
+      dialogOption.text = event.text;
+      dialogOption.buttons = event.buttons;
+    };
+
+    const closeItem = () => {
+      dialogOption.open = false;
+    };
+    
+    const click = (button: any) => {
+      if (button && typeof button.handler === "function") {
+        button.handler();
+      } else {
+        dialogOption.open = false;
+      }
+    };
+
+    return {
+      dialogOption,
+      closeItem,
+      click,
+    };
+  },
+});
+</script>

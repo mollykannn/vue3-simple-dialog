@@ -1,34 +1,64 @@
-<p align="center">
-  
-# Vue.js modal
+# Vue3-simple-dialog
 
-Easy to use, highly customizable Vue.js modal library.
+> This is fork from [vue-js-modal](https://github.com/euvl/vue-js-modal). 
+> 
+> This plugin support vue 3 and only have Dialog function.
 
-### 😎 [Examples](http://vue-js-modal.yev.io/)
+## Usage
 
-### 🤓 [Documentation](https://euvl.github.io/vue-js-modal/)
+First register the directive globally:
 
-### 🤖 [Changelog](https://github.com/euvl/vue-js-modal/releases/tag/2.0.0-rc4)
+```js
+import Dialog from "vue3-simple-dialog";
+import "vue3-simple-dialog/dist/style.css";
 
-### 🙌 [Looking for maintainers](https://github.com/euvl/vue-js-modal/issues/588)
+const app = createApp(App);
+app.use(Dialog);
+app.mount("#app");
+```
 
-### 💰 [Sponsorship](https://github.com/sponsors/euvl)
+Then use it in template:
 
-[![npm version](https://badge.fury.io/js/vue-js-modal.svg)](https://badge.fury.io/js/vue-js-modal)
-[![npm](https://img.shields.io/npm/dm/vue-js-modal.svg)](https://www.npmjs.com/package/vue-js-modal)
-[![npm](https://img.shields.io/npm/dt/vue-js-modal.svg)](https://www.npmjs.com/package/vue-js-modal)
+```vue
+<template>
+  <button @click="open()">Open</button>
+  <Dialog></Dialog>
+</template>
+<script lang="ts">
+import { defineComponent } from "vue";
 
-# ⚠️⚠️⚠️ 2.0.0-rc.X version:
+export default defineComponent({
+  setup() {
+    const Dialog:any = inject('simple-dialog')
 
-Version 2.0.0 release candidates will have breaking changes until it is 2.0.1. If you need a more stable version, please use 1.3.34.
-
-If you notice any bugs or regressings please do not hesitate to report any issues.
-
-<p align="right">
-  <a href="https://www.buymeacoffee.com/yev" target="_blank">
-  <img width="200" alt="screen shot 2018-03-01 at 10 33 39" src="https://user-images.githubusercontent.com/1577802/36840220-21beb89c-1d3c-11e8-98a4-45fc334842cf.png">
-  </a>
-</p>
+    const open = () => {
+      Dialog({
+        title: "Title",
+        text: "content",
+        buttons: [
+          {
+            title: "Cancel",
+          },
+          {
+            title: "Like",
+            handler: () => {
+              alert("Like action");
+            },
+          },
+          {
+            title: "Repost",
+            handler: () => {
+              alert("Repost action");
+            },
+          },
+        ],
+      });
+    };
+    return { open }
+  }
+});
+</script>
+```
 
 <p align="center">
   <img src="https://media.giphy.com/media/3oKIPco1eNxAA1rD4Q/giphy.gif">
