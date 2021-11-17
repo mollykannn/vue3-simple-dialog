@@ -1,23 +1,23 @@
-
 import { App } from 'vue';
-import emitter from "./mitt";
 import Dialog from "./components/dialog.vue";
+import emitter from "./mitt";
 
 export interface DialogOptions {
   title?: string;
   text?: string;
-  buttons?: Array<object>;
+  buttons?: Array<void>;
 }
+
+export const dialogs = (params: DialogOptions): void => {
+  emitter.emit("add", params);
+}
+dialogs.close = () => {
+  emitter.emit("close");
+};
 
 export default {
   install: (app: App) => {
-    const dialogs = (params: DialogOptions | string): void  => {
-      emitter.emit("add", params);
-    };
-    dialogs.close = () => {
-      emitter.emit("close");
-    };
-    app.provide('simple-dialog', dialogs)
+    app.config.globalProperties.$dialogs = dialogs;
     app.component("Dialog", Dialog);
   }
 }

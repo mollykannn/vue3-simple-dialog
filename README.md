@@ -26,14 +26,13 @@ Then use it in template:
 </template>
 <script lang="ts">
 import { defineComponent } from "vue";
+import { dialogs } from "vue3-simple-dialog";
 
 export default defineComponent({
   setup() {
-    const Dialog:any = inject('simple-dialog')
-
     const open = () => {
-      Dialog({
-        title: "Title",
+      dialogs({
+        title: "title",
         text: "content",
         buttons: [
           {
